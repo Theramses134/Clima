@@ -2,7 +2,9 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Clima en Oruro</title>
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -10,53 +12,65 @@
       color: white;
       text-align: center;
       padding-top: 50px;
+      margin: 0;
     }
     .card {
-      background: rgba(0,0,0,0.3);
-      padding: 20px;
-      border-radius: 12px;
+      background: rgba(0,0,0,0.35);
+      padding: 25px;
+      border-radius: 14px;
       display: inline-block;
-      min-width: 280px;
+      min-width: 300px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.3);
     }
     h1 { margin-bottom: 10px; }
     .temp { font-size: 2.5em; margin: 10px 0; }
+    .dato { margin: 6px 0; font-size: 1.1em; }
   </style>
 </head>
+
 <body>
   <div class="card">
     <h1>Clima en Oruro, Bolivia</h1>
-    <div id="description">Cargando...</div>
-    <div class="temp" id="temperature"></div>
-    <div id="humidity"></div>
+    <div id="description" class="dato">Cargando datos...</div>
+    <div id="temperature" class="temp"></div>
+    <div id="humidity" class="dato"></div>
+    <div id="rain" class="dato"></div>
+    <div id="clouds" class="dato"></div>
   </div>
 
   <script>
     const apiKey = "75dd659c25739c2473282716acb1a78f";
-    const city = "Oruro,BO";
 
-    const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric&lang=es`;
+    // Coordenadas de Oruro
+    const lat = -17.9833;
+    const lon = -67.1500;
+
+    const url = `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=es`;
 
     fetch(url)
       .then(response => response.json())
       .then(data => {
-        if (data.cod !== 200) {
-          document.getElementById("description").innerText = "Error al obtener datos";
+        if (!data.current) {
+          document.getElementById("description").innerText = "No se pudieron obtener datos";
           return;
         }
 
-        const temp = data.main.temp;
-        const humidity = data.main.humidity;
-        const description = data.weather[0].description;
+        const temp = data.current.temp;
+        const humidity = data.current.humidity;
+        const description = data.current.weather[0].description;
+        const clouds = data.current.clouds;
+        const rainProbability = Math.round(data.hourly[0].pop * 100);
 
         document.getElementById("description").innerText = description;
         document.getElementById("temperature").innerText = `${temp} °C`;
-        document.getElementById("humidity").innerText = `Humedad relativa: ${humidity}%`;
+        document.getElementById("humidity").innerText = `💧 Humedad relativa: ${humidity}%`;
+        document.getElementById("rain").innerText = `☔ Probabilidad de lluvia: ${rainProbability}%`;
+        document.getElementById("clouds").innerText = `☁️ Nubosidad: ${clouds}%`;
       })
       .catch(error => {
-        document.getElementById("description").innerText = "Error de conexión";
+        document.getElementById("description").innerText = "Error al conectar con el clima";
         console.error(error);
       });
   </script>
 </body>
 </html>
-
