@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Clima en Oruro</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom, #1e3c72, #2a5298);
+      color: white;
+      text-align: center;
+      padding-top: 50px;
+    }
+    .card {
+      background: rgba(0,0,0,0.3);
+      padding: 20px;
+      border-radius: 12px;
+      display: inline-block;
+      min-width: 280px;
+    }
+    h1 { margin-bottom: 10px; }
+    .temp { font-size: 2.5em; margin: 10px 0; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Clima en Oruro, Bolivia</h1>
+    <div id="description">Cargando...</div>
+    <div class="temp" id="temperature"></div>
+    <div id="humidity"></div>
+  </div>
+
+  <script>
+    const apiKey = "75dd659c25739c2473282716acb1a78f";
+    const city = "Oruro,BO";
+
+    const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric&lang=es`;
+
+    fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        if (data.cod !== 200) {
+          document.getElementById("description").innerText = "Error al obtener datos";
+          return;
+        }
+
+        const temp = data.main.temp;
+        const humidity = data.main.humidity;
+        const description = data.weather[0].description;
+
+        document.getElementById("description").innerText = description;
+        document.getElementById("temperature").innerText = `${temp} °C`;
+        document.getElementById("humidity").innerText = `Humedad relativa: ${humidity}%`;
+      })
+      .catch(error => {
+        document.getElementById("description").innerText = "Error de conexión";
+        console.error(error);
+      });
+  </script>
+</body>
+</html>
+
