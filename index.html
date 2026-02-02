@@ -40,26 +40,27 @@
 
   <script>
     const apiKey = "75dd659c25739c2473282716acb1a78f";
+    const city = "Oruro,BO";
 
-    // Coordenadas de Oruro
-    const lat = -17.9833;
-    const lon = -67.1500;
-
-    const url = `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=es`;
+    // API de PRONÓSTICO (incluye probabilidad de lluvia)
+    const url = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=metric&lang=es`;
 
     fetch(url)
       .then(response => response.json())
       .then(data => {
-        if (!data.current) {
-          document.getElementById("description").innerText = "No se pudieron obtener datos";
+        if (data.cod !== "200") {
+          document.getElementById("description").innerText = "Error obteniendo datos del clima";
           return;
         }
 
-        const temp = data.current.temp;
-        const humidity = data.current.humidity;
-        const description = data.current.weather[0].description;
-        const clouds = data.current.clouds;
-        const rainProbability = Math.round(data.hourly[0].pop * 100);
+        // Primer bloque del pronóstico (el más cercano a la hora actual)
+        const now = data.list[0];
+
+        const temp = now.main.temp;
+        const humidity = now.main.humidity;
+        const description = now.weather[0].description;
+        const clouds = now.clouds.all; // % nubosidad
+        const rainProbability = Math.round((now.pop || 0) * 100); // prob lluvia
 
         document.getElementById("description").innerText = description;
         document.getElementById("temperature").innerText = `${temp} °C`;
@@ -68,7 +69,7 @@
         document.getElementById("clouds").innerText = `☁️ Nubosidad: ${clouds}%`;
       })
       .catch(error => {
-        document.getElementById("description").innerText = "Error al conectar con el clima";
+        document.getElementById("description").innerText = "Error de conexión con OpenWeather";
         console.error(error);
       });
   </script>
